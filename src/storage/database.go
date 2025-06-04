@@ -62,11 +62,12 @@ func initSQLite(cfg config.SQLiteConfig) (*gorm.DB, error) {
 
 // initRedis initializes Redis connection
 func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     cfg.GetRedisAddr(),
-		Password: cfg.Password,
-		DB:       cfg.DB,
-	})
+	opt, err := redis.ParseURL(cfg.GetRedisURL())
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse Redis URL: %v", err)
+	}
+
+	client := redis.NewClient(opt)
 
 	// Test connection
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)

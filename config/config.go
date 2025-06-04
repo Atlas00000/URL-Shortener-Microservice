@@ -25,8 +25,7 @@ type SQLiteConfig struct {
 
 // RedisConfig represents Redis configuration
 type RedisConfig struct {
-	Host     string
-	Port     string
+	URL      string
 	Password string
 	DB       int
 }
@@ -36,9 +35,9 @@ func (c SQLiteConfig) GetDSN() string {
 	return c.Path
 }
 
-// GetRedisAddr returns the Redis address
-func (c RedisConfig) GetRedisAddr() string {
-	return fmt.Sprintf("%s:%s", c.Host, c.Port)
+// GetRedisURL returns the Redis URL
+func (c RedisConfig) GetRedisURL() string {
+	return c.URL
 }
 
 // Load loads the configuration from environment variables
@@ -55,8 +54,7 @@ func Load() (*Config, error) {
 				Path: filepath.Join(dataDir, "urlshortener.db"),
 			},
 			Redis: RedisConfig{
-				Host:     getEnv("REDIS_HOST", "redis"),
-				Port:     getEnv("REDIS_PORT", "6379"),
+				URL:      getEnv("REDIS_URL", "redis://redis:6379"),
 				Password: getEnv("REDIS_PASSWORD", ""),
 				DB:       0,
 			},
