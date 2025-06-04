@@ -36,6 +36,9 @@ RUN mkdir -p /app/data/geoip
 # Copy the binary from builder
 COPY --from=builder /app/url-shortener .
 
+# Copy static files
+COPY --from=builder /app/static ./static
+
 # Set environment variables
 ENV DATA_DIR=/app/data
 ENV PORT=8080

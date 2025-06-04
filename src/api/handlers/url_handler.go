@@ -38,7 +38,7 @@ func (h *URLHandler) ShortenURL(c *gin.Context) {
 	var input struct {
 		URL           string `json:"url" binding:"required"`
 		ExpirationDays int    `json:"expiration_days"`
-	}
+}
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		h.logger.Warn("Invalid input for URL shortening",
