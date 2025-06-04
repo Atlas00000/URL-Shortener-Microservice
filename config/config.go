@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // Config represents the application configuration
@@ -39,6 +40,18 @@ func (c SQLiteConfig) GetDSN() string {
 // GetRedisURL returns the Redis URL
 func (c RedisConfig) GetRedisURL() string {
 	log.Printf("Redis URL from config: %s", c.URL)
+	
+	// Validate Redis URL
+	if c.URL == "" {
+		log.Printf("Warning: Redis URL is empty")
+		return "redis://localhost:6379/0"
+	}
+	
+	if !strings.HasPrefix(c.URL, "redis://") && !strings.HasPrefix(c.URL, "rediss://") {
+		log.Printf("Warning: Redis URL does not have valid scheme: %s", c.URL)
+		return fmt.Sprintf("redis://%s", c.URL)
+	}
+	
 	return c.URL
 }
 
@@ -52,6 +65,16 @@ func Load() (*Config, error) {
 
 	redisURL := getEnv("REDIS_URL", "redis://redis:6379/0")
 	log.Printf("Loading Redis URL from environment: %s", redisURL)
+
+	// Validate Redis URL
+	if redisURL == "" {
+		return nil, fmt.Errorf("REDIS_URL environment variable is empty")
+	}
+
+	if !strings.HasPrefix(redisURL, "redis://") && !strings.HasPrefix(redisURL, "rediss://") {
+		redisURL = fmt.Sprintf("redis://%s", redisURL)
+		log.Printf("Added redis:// scheme to URL: %s", redisURL)
+	}
 
 	return &Config{
 		Database: DatabaseConfig{
