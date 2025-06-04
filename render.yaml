@@ -5,8 +5,10 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: REDIS_URL
-        value: redis://url-shortener-redis.internal:6379/0
+      - key: REDIS_HOST
+        value: url-shortener-redis.internal
+      - key: REDIS_PORT
+        value: "6379"
       - key: BASE_URL
         value: https://url-shortener.onrender.com
     disk:

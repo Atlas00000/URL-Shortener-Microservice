@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -63,20 +64,27 @@ func initSQLite(cfg config.SQLiteConfig) (*gorm.DB, error) {
 
 // initRedis initializes Redis connection
 func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
-	redisURL := cfg.GetRedisURL()
-	log.Printf("Initializing Redis with URL: %s", redisURL)
+	// Get Redis configuration from environment
+	redisHost := os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = "url-shortener-redis.internal"
+	}
 	
-	if redisURL == "" {
-		return nil, fmt.Errorf("Redis URL is empty")
+	redisPort := os.Getenv("REDIS_PORT")
+	if redisPort == "" {
+		redisPort = "6379"
 	}
 
-	opt, err := redis.ParseURL(redisURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse Redis URL '%s': %v", redisURL, err)
-	}
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisDB := 0
 
-	log.Printf("Redis options: %+v", opt)
-	client := redis.NewClient(opt)
+	log.Printf("Connecting to Redis at %s:%s", redisHost, redisPort)
+
+	client := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:%s", redisHost, redisPort),
+		Password: redisPassword,
+		DB:       redisDB,
+	})
 
 	// Test connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -84,7 +92,7 @@ func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 
 	log.Printf("Testing Redis connection...")
 	if err := client.Ping(ctx).Err(); err != nil {
-		return nil, fmt.Errorf("failed to connect to Redis at '%s': %v", redisURL, err)
+		return nil, fmt.Errorf("failed to connect to Redis at %s:%s: %v", redisHost, redisPort, err)
 	}
 	log.Printf("Redis connection successful")
 
