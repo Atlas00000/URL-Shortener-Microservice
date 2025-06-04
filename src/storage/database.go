@@ -80,18 +80,20 @@ func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 		log.Printf("Added redis:// scheme to URL: %s", redisURL)
 	}
 
-	// Create Redis client with direct options instead of parsing URL
-	client := redis.NewClient(&redis.Options{
-		Addr:     "url-shortener-redis:6379",
-		Password: "", // no password set
-		DB:       0,  // use default DB
-	})
+	// Parse Redis URL
+	opt, err := redis.ParseURL(redisURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse Redis URL: %v", err)
+	}
+
+	// Create Redis client
+	client := redis.NewClient(opt)
 
 	// Test connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	log.Printf("Testing Redis connection to url-shortener-redis:6379...")
+	log.Printf("Testing Redis connection to %s...", redisURL)
 	if err := client.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("failed to connect to Redis: %v", err)
 	}
