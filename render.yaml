@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: url-shortener
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: REDIS_URL
+        value: ${redis.REDIS_URL}
+      - key: BASE_URL
+        value: https://url-shortener.onrender.com
+    disk:
+      name: sqlite-data
+      mountPath: /app/data
+      sizeGB: 1
+
+  - type: redis
+    name: url-shortener-redis
+    plan: free
+    ipAllowList: [] 

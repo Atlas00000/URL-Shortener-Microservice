@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-hover: #45a049;
+            --error-color: #f44336;
+            --success-color: #4CAF50;
+            --text-color: #333;
+            --border-color: #ddd;
+            --shadow-color: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px var(--shadow-color);
+            margin-top: 20px;
+        }
+
+        h1 {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="url"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="url"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-group select {
+            flex: 1;
+        }
+
+        .input-group input {
+            flex: 2;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 6px;
+            display: none;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .success {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            color: var(--success-color);
+        }
+
+        .error {
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            color: var(--error-color);
+        }
+
+        .success a {
+            color: var(--success-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .success a:hover {
+            text-decoration: underline;
+        }
+
+        .info-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <div class="form-group">
+            <label for="url">Enter URL to shorten:</label>
+            <input type="url" id="url" placeholder="https://example.com" required>
+            <p class="info-text">Enter a valid URL including http:// or https://</p>
+        </div>
+        <div class="form-group">
+            <label for="expiration">Expiration Period:</label>
+            <select id="expiration">
+                <option value="1">1 Day</option>
+                <option value="7">7 Days</option>
+                <option value="30" selected>30 Days</option>
+                <option value="90">90 Days</option>
+                <option value="365">1 Year</option>
+            </select>
+            <p class="info-text">Choose how long your shortened URL should remain active</p>
+        </div>
+        <button onclick="shortenUrl()">Shorten URL</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function shortenUrl() {
+            const urlInput = document.getElementById('url');
+            const expirationSelect = document.getElementById('expiration');
+            const resultDiv = document.getElementById('result');
+            const url = urlInput.value;
+            const expirationDays = parseInt(expirationSelect.value);
+
+            if (!url) {
+                showResult('Please enter a URL', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/shorten', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        expiration_days: expirationDays
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showResult(`Shortened URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a><br>Expires: ${new Date(data.expires_at).toLocaleDateString()}`, true);
+                } else {
+                    showResult(`Error: ${data.error}`, false);
+                }
+            } catch (error) {
+                showResult('Error: Failed to shorten URL', false);
+            }
+        }
+
+        function showResult(message, isSuccess) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            resultDiv.className = isSuccess ? 'success' : 'error';
+        }
+    </script>
+</body>
+</html> 

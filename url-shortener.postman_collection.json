@@ -1,0 +1,179 @@
+{
+	"info": {
+		"_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+		"name": "URL Shortener API",
+		"description": "Collection for testing the URL shortener microservice API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "URL Shortening",
+			"item": [
+				{
+					"name": "Shorten URL",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"url\": \"https://example.com/very/long/url\",\n    \"expiration_days\": 30\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8080/shorten",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["shorten"]
+						},
+						"description": "Creates a shortened version of a long URL"
+					},
+					"response": []
+				},
+				{
+					"name": "Redirect to Original URL",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/{{shortId}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["{{shortId}}"],
+							"variable": [
+								{
+									"key": "shortId",
+									"value": "YtHDX-8",
+									"description": "The shortened URL identifier"
+								}
+							]
+						},
+						"description": "Redirects to the original URL using the shortened ID"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for URL shortening and redirection"
+		},
+		{
+			"name": "Analytics",
+			"item": [
+				{
+					"name": "Get Analytics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/analytics?short_id={{shortId}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["analytics"],
+							"query": [
+								{
+									"key": "short_id",
+									"value": "{{shortId}}",
+									"description": "The short ID of the URL to get analytics for"
+								}
+							],
+							"variable": [
+								{
+									"key": "shortId",
+									"value": "YtHDX-8",
+									"description": "The short ID to get analytics for"
+								}
+							]
+						},
+						"description": "Retrieves analytics data for a specific URL"
+					},
+					"response": []
+				},
+				{
+					"name": "Record Click",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/click?short_id={{shortId}}",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["click"],
+							"query": [
+								{
+									"key": "short_id",
+									"value": "{{shortId}}",
+									"description": "The short ID of the URL to record the click for"
+								}
+							],
+							"variable": [
+								{
+									"key": "shortId",
+									"value": "YtHDX-8",
+									"description": "The short ID to record a click for"
+								}
+							]
+						},
+						"description": "Records a click event for a URL"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints for analytics and click tracking"
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/health",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8080",
+							"path": ["health"]
+						},
+						"description": "Checks if the service is running"
+					},
+					"response": []
+				}
+			],
+			"description": "System health and status endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	]
+} 

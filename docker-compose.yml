@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DB_TYPE=sqlite
+      - DB_PATH=/app/data/urlshortener.db
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - redis
+    networks:
+      - urlshortener_network
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - urlshortener_network
+
+volumes:
+  redis_data:
+
+networks:
+  urlshortener_network:
+    driver: bridge 

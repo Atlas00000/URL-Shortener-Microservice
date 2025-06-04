@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>URL Shortener Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>URL Shortener Test</h1>
+    <div class="form-group">
+        <label for="url">URL to Shorten:</label>
+        <input type="text" id="url" value="https://www.remoterocketship.com/">
+    </div>
+    <div class="form-group">
+        <label for="expiration">Expiration (days):</label>
+        <input type="number" id="expiration" value="30">
+    </div>
+    <button onclick="shortenUrl()">Shorten URL</button>
+    <div id="result"></div>
+
+    <script>
+        async function shortenUrl() {
+            const url = document.getElementById('url').value;
+            const expiration = document.getElementById('expiration').value;
+            const resultDiv = document.getElementById('result');
+
+            try {
+                const response = await fetch('http://localhost:8080/shorten', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        expiration_days: parseInt(expiration)
+                    })
+                });
+
+                const data = await response.json();
+                resultDiv.style.display = 'block';
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <h3>Success!</h3>
+                        <p>Short URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a></p>
+                        <p>Expires: ${new Date(data.expires_at).toLocaleString()}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h3>Error</h3>
+                        <p>${data.error || 'An error occurred'}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `
+                    <h3>Error</h3>
+                    <p>${error.message}</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html> 
