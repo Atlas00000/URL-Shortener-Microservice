@@ -5,11 +5,6 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: url-shortener-redis
-          property: connectionString
       - key: BASE_URL
         value: https://url-shortener.onrender.com
     disk:

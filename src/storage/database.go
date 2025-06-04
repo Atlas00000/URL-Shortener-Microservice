@@ -29,10 +29,11 @@ func NewDatabase(cfg *config.DatabaseConfig) (*Database, error) {
 		return nil, fmt.Errorf("failed to initialize SQLite: %v", err)
 	}
 
-	// Initialize Redis connection
+	// Initialize Redis connection (optional)
 	redisClient, err := initRedis(cfg.Redis)
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Redis: %v", err)
+		log.Printf("Warning: Redis initialization failed: %v. Continuing without Redis.", err)
+		redisClient = nil
 	}
 
 	return &Database{
@@ -68,7 +69,8 @@ func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 	// Get Redis URL from environment
 	redisURL := os.Getenv("REDIS_URL")
 	if redisURL == "" {
-		redisURL = "redis://localhost:6379/0"
+		log.Printf("No REDIS_URL provided, skipping Redis initialization")
+		return nil, nil
 	}
 
 	// Log the raw Redis URL for debugging
@@ -113,9 +115,11 @@ func (db *Database) Close() error {
 		return err
 	}
 
-	// Close Redis connection
-	if err := db.Redis.Close(); err != nil {
-		return err
+	// Close Redis connection if it exists
+	if db.Redis != nil {
+		if err := db.Redis.Close(); err != nil {
+			return err
+		}
 	}
 
 	return nil
