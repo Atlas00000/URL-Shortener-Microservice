@@ -69,7 +69,8 @@ func Load() (*Config, error) {
 
 	// Validate Redis URL
 	if redisURL == "" {
-		return nil, fmt.Errorf("REDIS_URL environment variable is empty")
+		log.Printf("Warning: Redis URL is empty, Redis features will be disabled")
+		redisURL = "redis://localhost:6379/0"
 	}
 
 	if !strings.HasPrefix(redisURL, "redis://") && !strings.HasPrefix(redisURL, "rediss://") {

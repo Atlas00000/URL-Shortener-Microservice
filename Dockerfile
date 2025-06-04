@@ -42,7 +42,7 @@ COPY --from=builder /app/static ./static
 # Set environment variables
 ENV DATA_DIR=/app/data
 ENV PORT=8080
-ENV REDIS_URL=""
+ENV REDIS_URL="redis://redis:6379/0"
 
 # Expose the application port
 EXPOSE 8080

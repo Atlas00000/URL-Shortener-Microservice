@@ -13,9 +13,11 @@ services:
     volumes:
       - ./data:/app/data
     depends_on:
-      - redis
+      redis:
+        condition: service_started
     networks:
       - urlshortener_network
+    restart: unless-stopped
 
   redis:
     image: redis:6-alpine
@@ -26,6 +28,12 @@ services:
     command: redis-server --appendonly yes
     networks:
       - urlshortener_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
 
 volumes:
   redis_data:

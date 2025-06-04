@@ -1,6 +1,6 @@
 # GeoIP Configuration Template
 # Copy this file to GeoIP.conf and replace the placeholder with your actual license key
-
+ 
 AccountID YOUR_ACCOUNT_ID
 LicenseKey YOUR_LICENSE_KEY
 EditionIDs GeoLite2-City 
