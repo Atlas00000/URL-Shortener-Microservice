@@ -6,7 +6,10 @@ services:
     dockerfilePath: ./Dockerfile
     envVars:
       - key: REDIS_URL
-        value: ${redis.REDIS_URL}
+        fromService:
+          type: redis
+          name: url-shortener-redis
+          property: connectionString
       - key: BASE_URL
         value: https://url-shortener.onrender.com
     disk:
