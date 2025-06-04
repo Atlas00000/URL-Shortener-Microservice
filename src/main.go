@@ -33,6 +33,10 @@ func main() {
 		logger.LogError(err, "Failed to load config", nil)
 		os.Exit(1)
 	}
+	// Ensure DataDir is set
+	if dbConfig.DataDir == "" {
+		dbConfig.DataDir = "./data"
+	}
 
 	// Initialize database
 	db, err := storage.NewDatabase(&dbConfig.Database)
@@ -50,19 +54,19 @@ func main() {
 	// Initialize GeoIP service
 	geoService, err := geo.NewService(dbConfig.DataDir)
 	if err != nil {
-		logger.LogWarning("Failed to initialize geo service", "error", err.Error())
-		logger.LogInfo("Continuing without geo location features")
+		logger.LogError(err, "Failed to initialize geo service", nil)
+		logger.LogInfo("Continuing without geo location features", nil)
 	} else {
 		defer geoService.Close()
-		logger.LogInfo("GeoIP service initialized successfully")
+		logger.LogInfo("GeoIP service initialized successfully", nil)
 	}
 
 	// Initialize services
 	urlService := services.NewURLService(db.SQLite)
-	analyticsService := services.NewAnalyticsService(db.SQLite, geoService)
+	analyticsService := services.NewAnalyticsService(db.SQLite, nil)
 
 	// Initialize handlers
-	urlHandler := handlers.NewURLHandler(urlService, dbConfig.BaseURL, geoService)
+	urlHandler := handlers.NewURLHandler(urlService, dbConfig.BaseURL)
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService, urlService)
 
 	// Initialize server

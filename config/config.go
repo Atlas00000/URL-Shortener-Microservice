@@ -12,6 +12,7 @@ import (
 type Config struct {
 	Database DatabaseConfig
 	BaseURL  string
+	DataDir  string
 }
 
 // DatabaseConfig represents database configuration
@@ -88,6 +89,7 @@ func Load() (*Config, error) {
 			},
 		},
 		BaseURL: getEnv("BASE_URL", "http://localhost:8080"),
+		DataDir: dataDir,
 	}, nil
 }
 

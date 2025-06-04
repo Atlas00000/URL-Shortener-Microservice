@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"net"
 
 	"github.com/oschwald/geoip2-golang"
-	"github.com/yourusername/urlshortener/src/logger"
 )
 
 type Service struct {
@@ -36,7 +36,12 @@ func (s *Service) GetLocation(ip string) (string, error) {
 		return "Unknown", nil
 	}
 
-	record, err := s.reader.City(ip)
+	parsedIP := net.ParseIP(ip)
+	if parsedIP == nil {
+		return "Unknown", fmt.Errorf("invalid IP address: %s", ip)
+	}
+
+	record, err := s.reader.City(parsedIP)
 	if err != nil {
 		return "Unknown", err
 	}
