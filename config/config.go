@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -37,6 +38,7 @@ func (c SQLiteConfig) GetDSN() string {
 
 // GetRedisURL returns the Redis URL
 func (c RedisConfig) GetRedisURL() string {
+	log.Printf("Redis URL from config: %s", c.URL)
 	return c.URL
 }
 
@@ -48,13 +50,16 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("failed to create data directory: %v", err)
 	}
 
+	redisURL := getEnv("REDIS_URL", "redis://redis:6379/0")
+	log.Printf("Loading Redis URL from environment: %s", redisURL)
+
 	return &Config{
 		Database: DatabaseConfig{
 			SQLite: SQLiteConfig{
 				Path: filepath.Join(dataDir, "urlshortener.db"),
 			},
 			Redis: RedisConfig{
-				URL:      getEnv("REDIS_URL", "redis://redis:6379/0"),
+				URL:      redisURL,
 				Password: getEnv("REDIS_PASSWORD", ""),
 				DB:       0,
 			},
@@ -66,7 +71,9 @@ func Load() (*Config, error) {
 // getEnv gets an environment variable or returns a default value
 func getEnv(key, defaultValue string) string {
 	if value, exists := os.LookupEnv(key); exists {
+		log.Printf("Environment variable %s found: %s", key, value)
 		return value
 	}
+	log.Printf("Environment variable %s not found, using default: %s", key, defaultValue)
 	return defaultValue
 } 

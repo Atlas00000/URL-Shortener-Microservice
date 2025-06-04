@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -63,6 +64,8 @@ func initSQLite(cfg config.SQLiteConfig) (*gorm.DB, error) {
 // initRedis initializes Redis connection
 func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 	redisURL := cfg.GetRedisURL()
+	log.Printf("Initializing Redis with URL: %s", redisURL)
+	
 	if redisURL == "" {
 		return nil, fmt.Errorf("Redis URL is empty")
 	}
@@ -72,15 +75,18 @@ func initRedis(cfg config.RedisConfig) (*redis.Client, error) {
 		return nil, fmt.Errorf("failed to parse Redis URL '%s': %v", redisURL, err)
 	}
 
+	log.Printf("Redis options: %+v", opt)
 	client := redis.NewClient(opt)
 
 	// Test connection with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	log.Printf("Testing Redis connection...")
 	if err := client.Ping(ctx).Err(); err != nil {
 		return nil, fmt.Errorf("failed to connect to Redis at '%s': %v", redisURL, err)
 	}
+	log.Printf("Redis connection successful")
 
 	return client, nil
 }
