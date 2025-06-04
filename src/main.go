@@ -14,6 +14,7 @@ import (
 	"github.com/yourusername/urlshortener/src/storage"
 	"github.com/yourusername/urlshortener/config"
 	"github.com/yourusername/urlshortener/src/api/handlers"
+	"github.com/yourusername/urlshortener/src/geo"
 )
 
 func main() {
@@ -46,11 +47,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Initialize geo service
-	geoService, err := services.NewGeoService()
+	// Initialize GeoIP service
+	geoService, err := geo.NewService(dbConfig.DataDir)
 	if err != nil {
-		logger.LogError(err, "Failed to initialize geo service", nil)
-		os.Exit(1)
+		logger.LogWarning("Failed to initialize geo service", "error", err.Error())
+		logger.LogInfo("Continuing without geo location features")
+	} else {
+		defer geoService.Close()
+		logger.LogInfo("GeoIP service initialized successfully")
 	}
 
 	// Initialize services
@@ -58,7 +62,7 @@ func main() {
 	analyticsService := services.NewAnalyticsService(db.SQLite, geoService)
 
 	// Initialize handlers
-	urlHandler := handlers.NewURLHandler(urlService, dbConfig.BaseURL)
+	urlHandler := handlers.NewURLHandler(urlService, dbConfig.BaseURL, geoService)
 	analyticsHandler := handlers.NewAnalyticsHandler(analyticsService, urlService)
 
 	// Initialize server
