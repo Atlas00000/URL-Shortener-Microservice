@@ -54,7 +54,7 @@ func Load() (*Config, error) {
 				Path: filepath.Join(dataDir, "urlshortener.db"),
 			},
 			Redis: RedisConfig{
-				URL:      getEnv("REDIS_URL", "redis://redis:6379"),
+				URL:      getEnv("REDIS_URL", "redis://redis:6379/0"),
 				Password: getEnv("REDIS_PASSWORD", ""),
 				DB:       0,
 			},
