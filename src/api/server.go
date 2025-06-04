@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"time"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/yourusername/urlshortener/src/api/handlers"
@@ -35,12 +36,13 @@ func NewServer() *Server {
 		c.Next()
 	})
 
-	// Serve static files
-	router.Static("/static", "./static")
+	// Serve static files with absolute path
+	staticPath := filepath.Join("/app", "static")
+	router.Static("/static", staticPath)
 	
 	// Serve index.html for root path
 	router.GET("/", func(c *gin.Context) {
-		c.File("./static/index.html")
+		c.File(filepath.Join(staticPath, "index.html"))
 	})
 
 	return &Server{

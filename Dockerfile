@@ -36,8 +36,9 @@ RUN mkdir -p /app/data/geoip
 # Copy the binary from builder
 COPY --from=builder /app/url-shortener .
 
-# Copy static files
-COPY --from=builder /app/static ./static
+# Copy static files and set permissions
+COPY --from=builder /app/static /app/static
+RUN chmod -R 755 /app/static
 
 # Set environment variables
 ENV DATA_DIR=/app/data
