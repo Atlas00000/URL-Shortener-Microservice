@@ -1,8 +1,12 @@
 # Build stage
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22-bullseye AS builder
 
 # Install build dependencies
-RUN apk add --no-cache git curl gcc musl-dev
+RUN apt-get update && apt-get install -y \
+    gcc \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
@@ -30,10 +34,13 @@ RUN curl -L "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2
 RUN CGO_ENABLED=1 GOOS=linux go build -o urlshortener ./src/main.go
 
 # Final stage
-FROM alpine:latest
+FROM debian:bullseye-slim
 
 # Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
